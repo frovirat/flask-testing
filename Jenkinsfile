@@ -4,7 +4,8 @@ pipeline {
     stages {
         stage('Info') {
             steps {
-                echo '${BUILD_USER}'
+                echo 'userId=${BUILD_USER_ID},fullName=${BUILD_USER},email=${BUILD_USER_EMAIL}'
+                echo "userId=${BUILD_USER_ID},fullName=${BUILD_USER},email=${BUILD_USER_EMAIL}"
             }
         }
         stage('Linter') {
