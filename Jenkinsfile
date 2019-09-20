@@ -2,6 +2,11 @@ pipeline {
     agent none
 
     stages {
+        stage('Info') {
+            steps {
+                echo ${BUILD_USER}
+            }
+        }
         stage('Linter') {
             steps {
                 echo 'Linting..'
