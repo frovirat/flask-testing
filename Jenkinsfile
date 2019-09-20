@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Info') {
             steps {
-                echo ${BUILD_USER}
+                echo '${BUILD_USER}'
             }
         }
         stage('Linter') {
