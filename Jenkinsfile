@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Linter') {
             steps {
-                echo 'Linting'
+                echo 'Linting..'
             }
         }
         stage('Test') {
@@ -14,8 +14,9 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                docker build -t hello-world-image .
-                docker run  -p 5000:5000 -d --name hello-world hello-world-image
+                echo 'Deploying..'
+                // docker build -t hello-world-image .
+                //docker run  -p 5000:5000 -d --name hello-world hello-world-image
             }
         }
     }
