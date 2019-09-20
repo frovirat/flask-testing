@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent none
 
     stages {
         stage('Linter') {
@@ -13,6 +13,7 @@ pipeline {
             }
         }
         stage('Deploy') {
+            agent { dockerfile true }
             steps {
                 echo 'Deploying..'
                 // docker build -t hello-world-image .
