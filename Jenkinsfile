@@ -21,14 +21,14 @@ pipeline {
             // agent { dockerfile true }
             steps {
                 echo 'Building..'
-                sh docker build -t flask-testing-image .
+                sh "docker build -t flask-testing-image ."
             }
         }
         stage('Deploy') {
             // agent { dockerfile true }
             steps {
                 echo 'Deploying..'
-                sh docker run -d -p 5000:5000 --name testing-flask flask-testing-image
+                sh "docker run -d -p 5000:5000 --name testing-flask flask-testing-image"
             }
         }
     }
