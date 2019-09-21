@@ -1,1 +1,2 @@
 Flask==0.12.2
+Flask-REST-JSONAPI==0.30.1

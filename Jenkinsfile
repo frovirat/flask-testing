@@ -17,12 +17,18 @@ pipeline {
                 echo 'Testing..'
             }
         }
+        stage('Build') {
+            // agent { dockerfile true }
+            steps {
+                echo 'Building..'
+                sh docker build -t flask-testing-image .
+            }
+        }
         stage('Deploy') {
-            agent { dockerfile true }
+            // agent { dockerfile true }
             steps {
                 echo 'Deploying..'
-                // docker build -t hello-world-image .
-                //docker run  -p 5000:5000 -d --name hello-world hello-world-image
+                sh docker run -d -p 5000:5000 --name testing-flask flask-testing-image
             }
         }
     }
