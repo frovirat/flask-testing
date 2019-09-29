@@ -1,13 +1,14 @@
-import  api as server_api
 
 from flask import Flask
-from flask_rest_jsonapi import Api, ResourceDetail
+from flask_restplus import Api
+
+from apis import api
 
 
-def create_app(debug: bool) -> Flask:
+def create_app() -> Flask:
     """
     Function that creates a Flask application. App configuration is set here.
-    Create application factory, as explained here: 
+    Create application factory, as explained here:
     http://flask.pocoo.org/docs/patterns/appfactories/.
 
     Args:
@@ -18,22 +19,6 @@ def create_app(debug: bool) -> Flask:
     """
     app = Flask(__name__)
     app.config.from_pyfile('config.py')
-    api = Api(app)
+    api.init_app(app)
 
-    if debug:
-        app.config['DEBUG'] = True
-    
-    api.route(server_api.Index, 'index', '/')
-    api.route(server_api.ClientPassword, "client_detail", "/client_detail/<int:id>")
-    configure_extensions(app)
-    
     return app
-
-def configure_extensions(app: Flask):
-    """
-    It initializes a Flask app with its extensions.
-
-    Args:
-        app: a Flask application
-    """
-    pass
