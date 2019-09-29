@@ -89,7 +89,7 @@ pipeline {
         }
         stage('fail'){
             steps{
-                echo ' que fem'
+                echo ' que fem en cas de FAIL'
             }
         }
     }
