@@ -15,7 +15,7 @@ pipeline {
         stage('Linter') {
             agent {
                 docker { 
-                    image 'python:3.7'
+                    image 'pylint:latest'
                 }
             }
             steps {
