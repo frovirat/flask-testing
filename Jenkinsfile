@@ -25,6 +25,7 @@ pipeline {
         stage('Info') {
             steps {
                 echo 'Starting'
+                setBuildStatus("Build results is ${currentBuild.result}", currentBuild.result);
                 script {
                     def scmVars = checkout scm
                     LOCAL_BRANCH_NAME = scmVars.GIT_BRANCH
@@ -32,7 +33,7 @@ pipeline {
                     echo "Branch Name : " + LOCAL_BRANCH_NAME
                     echo "Commit SHA  : " + CURRENT_GIT_COMMIT
                     CURRENT_CONTAINER_NAME = "testing-flask-$GROUP_NAME-$CURRENT_GIT_COMMIT"
-                    CURRENT_IMAGE_NAME = "flask-testing-image-$GROUP_NAME"
+                    CURRENT_IMAGE_NAME = "flask-testing-image-$GROUP_NAME-$CURRENT_GIT_COMMIT"
                     echo "Current Container Name : " + CURRENT_CONTAINER_NAME
                     echo "Current Imge Name : " + CURRENT_IMAGE_NAME
                 }
@@ -93,6 +94,7 @@ pipeline {
         stage('Health-check') {
             steps {
                 echo 'Ensure that the api is up and giving service'
+
             }
         }
         stage('RollBack') {
