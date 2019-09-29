@@ -91,11 +91,11 @@ pipeline {
             // agent { dockerfile true }
             steps {
                 script {
-                    env.PREVIOUS_IMAGE_NAME = sh (
+                    PREVIOUS_IMAGE_NAME = sh (
                         script: "docker ps --format {{.Image}} -f name=$TEMPLATE_IMAGE_NAME*",
                         returnStdout: true
                     ).trim()
-                    env.PREVIOUS_CONTAINER_NAME = sh (
+                    PREVIOUS_CONTAINER_NAME = sh (
                         script: "docker ps --format {{.Names}} -f name=$TEMPLATE_IMAGE_NAME*",
                         returnStdout: true
                     ).trim()
