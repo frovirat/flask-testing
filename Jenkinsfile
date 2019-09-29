@@ -103,7 +103,7 @@ pipeline {
             
                 echo 'Deploying...'
                 
-                sh "docker ps -f name=$CURRENT_CONTAINER_NAME -q | xargs --no-run-if-empty docker container stop"
+                sh "docker ps -f name=$PREVIOUS_CONTAINER_NAME -q | xargs --no-run-if-empty docker container stop"
                 sh "docker run -d -p $GROUP_PORT:5000 --name $CURRENT_CONTAINER_NAME $CURRENT_IMAGE_NAME"
             }
         }
