@@ -25,7 +25,7 @@ pipeline {
         stage('Info') {
             steps {
                 echo 'Starting'
-                setBuildStatus("Build results is ${currentBuild.result}", currentBuild.result);
+                setBuildStatus("Build results is Building", 'Building');
                 script {
                     def scmVars = checkout scm
                     LOCAL_BRANCH_NAME = scmVars.GIT_BRANCH
