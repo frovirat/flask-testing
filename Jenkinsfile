@@ -25,15 +25,17 @@ pipeline {
         stage('Info') {
             steps {
                 echo 'Starting'
-                def scmVars = checkout scm
-                LOCAL_BRANCH_NAME = scmVars.GIT_BRANCH
-                CURRENT_GIT_COMMIT = scmVars.GIT_COMMIT
-                echo "Branch Name : " + LOCAL_BRANCH_NAME
-                echo "Commit SHA  : " + CURRENT_GIT_COMMIT
-                CURRENT_CONTAINER_NAME = "testing-flask-$GROUP_NAME-$CURRENT_GIT_COMMIT"
-                CURRENT_IMAGE_NAME = "flask-testing-image-$GROUP_NAME"
-                echo "Current Container Name : " + CURRENT_CONTAINER_NAME
-                echo "Current Imge Name : " + CURRENT_IMAGE_NAME
+                script {
+                    def scmVars = checkout scm
+                    LOCAL_BRANCH_NAME = scmVars.GIT_BRANCH
+                    CURRENT_GIT_COMMIT = scmVars.GIT_COMMIT
+                    echo "Branch Name : " + LOCAL_BRANCH_NAME
+                    echo "Commit SHA  : " + CURRENT_GIT_COMMIT
+                    CURRENT_CONTAINER_NAME = "testing-flask-$GROUP_NAME-$CURRENT_GIT_COMMIT"
+                    CURRENT_IMAGE_NAME = "flask-testing-image-$GROUP_NAME"
+                    echo "Current Container Name : " + CURRENT_CONTAINER_NAME
+                    echo "Current Imge Name : " + CURRENT_IMAGE_NAME
+                }
             }
         }
         stage('Linter') {
