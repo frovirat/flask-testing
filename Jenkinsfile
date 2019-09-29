@@ -13,7 +13,11 @@ pipeline {
             }
         }
         stage('Linter') {
-            agent { image: 'eeacms/pep8:latest' }
+            agent {
+                docker { 
+                    image: 'eeacms/pep8:latest' 
+                }
+            }
             steps {
                 echo 'Linting..'
                 sh "pylint -f parseable --rcfile=.pylintrc $PACKAGE_NAME | tee pylint.out"
