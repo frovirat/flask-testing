@@ -22,7 +22,7 @@ pipeline {
                 echo "Installing pylint"
                 sh "pip install -U mock pylint"
                 echo 'Linting..'
-                sh "pylint -f parseable --rcfile=.pylintrc $PACKAGE_NAME | tee pylint.out"
+                sh "pylint -f parseable $PACKAGE_NAME | tee pylint.out"
                 step([$class: 'WarningsPublisher',
                     parserConfigurations: [
                         [
