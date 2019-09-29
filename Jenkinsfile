@@ -115,7 +115,9 @@ pipeline {
         stage('Health-check') {
             steps {
                 echo 'Ensure that the api is up and giving service'
-                params.SELF_CHECK_STATUS = 'pass'
+                script {
+                    params.SELF_CHECK_STATUS = 'pass'
+                }
             }
         }
         stage('RollBack') {
