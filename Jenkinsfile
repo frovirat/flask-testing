@@ -36,6 +36,11 @@ pipeline {
             }
         }
         stage('Test') {
+            agent {
+                docker { 
+                    image 'pytest-cov:latest'
+                }
+            }
             steps {
                 echo 'Testing..'
             }
@@ -69,11 +74,6 @@ pipeline {
             steps{
                 echo ' que fem'
             }
-        }
-    }
-    post {
-        always {
-            githubNotify context: 'Notification key', description: 'This is a shorted example',  status: 'SUCCESS'
         }
     }
 }
