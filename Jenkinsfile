@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Info') {
             steps {
-                echo 'starting'
+                echo 'Starting'
             }
         }
         stage('Linter') {
@@ -75,11 +75,6 @@ pipeline {
     }
     post {
         always {
-            githubNotify account: 'LopezMDidac', context: 'Final Test',
-                credentialsId: '5687d767-8f7e-4647-ad85-f4b842057364', 
-                description: 'Notifying to GitHub',
-                sha: checkout(scm).GIT_COMMIT,
-                status: 'SUCCESS', targetUrl: 'git@github.com:LopezMDidac/flask-testing.git'
-        }
+            githubNotify context: 'Notification key', description: 'This is a shorted example',  status: 'SUCCESS'
     }
 }
