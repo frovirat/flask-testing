@@ -129,14 +129,14 @@ pipeline {
                 sh "docker container rm -name=$PREVIOUS_CONTAINER_NAME"
             }
 
-            when {
-                expression { params.SELF_CHECK_STATUS == 'fail' }
-            }
-            steps {
-                echo 'wake up the old image if health-check fails'
-                sh "docker image rm -name=$CURRENT_IMAGE_NAME"
-                sh "docker run -d -p $GROUP_PORT:5000 --name $PREVIOUS_CONTAINER_NAME $PREVIOUS_IMAGE_NAME"
-            }
+            // when {
+            //     expression { params.SELF_CHECK_STATUS == 'fail' }
+            // }
+            // steps {
+            //     echo 'wake up the old image if health-check fails'
+            //     sh "docker image rm -name=$CURRENT_IMAGE_NAME"
+            //     sh "docker run -d -p $GROUP_PORT:5000 --name $PREVIOUS_CONTAINER_NAME $PREVIOUS_IMAGE_NAME"
+            // }
         }
         stage('fail'){
             steps{
