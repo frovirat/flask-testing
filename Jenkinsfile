@@ -23,12 +23,6 @@ pipeline {
         PREVIOUS_CONTAINER_NAME = ''
         MAIL_LIST = "frovirat.ficosa@gmail.com"
     }
-    parameters {
-        choice(
-            choices: ['pass' , 'fail'],
-            description: '',
-            name: 'SELF_CHECK_STATUS')
-    }
     stages {
         stage('Info') {
             steps {
@@ -45,6 +39,7 @@ pipeline {
                     CURRENT_IMAGE_NAME = "$TEMPLATE_IMAGE_NAME-$CURRENT_GIT_COMMIT"
                     echo "Current Container Name : " + CURRENT_CONTAINER_NAME
                     echo "Current Imge Name : " + CURRENT_IMAGE_NAME
+                    SELF_CHECK_STATUS = 'fail'
                 }
             }
         }
@@ -116,13 +111,13 @@ pipeline {
             steps {
                 echo 'Ensure that the api is up and giving service'
                 script {
-                    params.SELF_CHECK_STATUS = 'pass'
+                    env.SELF_CHECK_STATUS = 'pass'
                 }
             }
         }
         stage('RollBack') {
             when {
-                expression { params.SELF_CHECK_STATUS == 'pass' }
+                expression { env.SELF_CHECK_STATUS == 'pass' }
             }
             steps {
                 echo 'wake up the new image if health-check pass'
