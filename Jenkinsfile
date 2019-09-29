@@ -63,7 +63,7 @@ pipeline {
             // agent { dockerfile true }
             steps {
                 echo 'Building...'
-                sh "docker build -t flask-testing-image-$GROUP_NAME ./flask-testing"
+                sh "docker build -t flask-testing-image-$GROUP_NAME ."
                 echo 'Notify github.'
             }
         }
