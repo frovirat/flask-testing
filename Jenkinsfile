@@ -15,10 +15,12 @@ pipeline {
         stage('Linter') {
             agent {
                 docker { 
-                    image 'eeacms/pep8:latest' 
+                    image 'python:3.7'
                 }
             }
             steps {
+                echo "Installing pylint"
+                sh "pip install -U mock pylint"
                 echo 'Linting..'
                 sh "pylint -f parseable --rcfile=.pylintrc $PACKAGE_NAME | tee pylint.out"
                 step([$class: 'WarningsPublisher',
