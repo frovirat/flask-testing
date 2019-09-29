@@ -96,8 +96,14 @@ pipeline {
             // agent { dockerfile true }
             steps {
                 echo 'Deploying...'
-                sh "PREVIOUS_IMAGE_NAME=$(docker ps --format {{.Image}} -f name=$TEMPLATE_IMAGE_NAME*)"
-                sh "PREVIOUS_CONTAINER_NAME=$(docker ps --format {{.Names}} -f name=$TEMPLATE_IMAGE_NAME*)"
+                PREVIOUS_IMAGE_NAME = sh (
+                    script: "docker ps --format {{.Image}} -f name=$TEMPLATE_IMAGE_NAME*",
+                    returnStdout: true
+                ).trim()
+                PREVIOUS_CONTAINER_NAME = sh (
+                    script: "docker ps --format {{.Names}} -f name=$TEMPLATE_IMAGE_NAME*",
+                    returnStdout: true
+                ).trim()
                 sh "docker ps -f name=$CURRENT_CONTAINER_NAME -q | xargs --no-run-if-empty docker container stop"
                 sh "docker run -d -p $GROUP_PORT:5000 --name $CURRENT_CONTAINER_NAME $CURRENT_IMAGE_NAME"
             }
