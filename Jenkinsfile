@@ -15,7 +15,7 @@ pipeline {
         stage('Linter') {
             agent {
                 docker { 
-                    image: 'eeacms/pep8:latest' 
+                    image 'eeacms/pep8:latest' 
                 }
             }
             steps {
