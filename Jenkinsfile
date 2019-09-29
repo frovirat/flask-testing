@@ -1,5 +1,11 @@
 pipeline {
     agent any
+    environment {
+        PROJECT_NAME = 'flask-testing'
+        PACKAGE_NAME = 'apis'
+        LOCAL_BRANCH_NAME = ''
+        MAIL_LIST = "frovirat.ficosa@gmail.com"
+    }
     stages {
         stage('Info') {
             steps {
@@ -7,8 +13,22 @@ pipeline {
             }
         }
         stage('Linter') {
+            agent { image: 'eeacms/pep8:latest' }
             steps {
                 echo 'Linting..'
+                sh "pylint -f parseable --rcfile=.pylintrc $PACKAGE_NAME | tee pylint.out"
+                step([$class: 'WarningsPublisher',
+                    parserConfigurations: [
+                        [
+                        parserName: 'pylint',
+                        pattern: 'pylint.out'
+                        ]
+                    ],
+                    unstableTotalLow: '15',
+                    unstableTotalNormal: '10',
+                    unstableTotalHigh: '0',
+                    usePreviousBuildAsReference: true
+                ])
             }
         }
         stage('Test') {
