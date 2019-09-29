@@ -54,9 +54,9 @@ pipeline {
             }
             steps {
                 echo 'Testing...'
-                 sh """
-                    py.test --cov -v --junitxml=unittests.xml --cov-config=.coveragerc --cov-report=xml:coverage.xml
-                    """
+                //  sh """
+                //     py.test --cov -v --junitxml=unittests.xml --cov-config=.coveragerc --cov-report=xml:coverage.xml
+                //     """
             }
         }
         stage('Build') {
@@ -70,7 +70,7 @@ pipeline {
         stage('Deploy') {
             // agent { dockerfile true }
             steps {
-                echo 'Deploying..'
+                echo 'Deploying...'
                 sh "docker run --rm -d -p 5000:5000 --name testing-flask flask-testing-image-$GROUP_NAME"
             }
         }
