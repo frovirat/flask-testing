@@ -16,12 +16,24 @@ pipeline {
         PROJECT_NAME = 'flask-testing'
         PACKAGE_NAME = 'apis'
         LOCAL_BRANCH_NAME = ''
+        CURRENT_GIT_COMMIT = ''
+        CURRENT_CONTAINER_NAME = ''
+        CURRENT_IMAGE_NAME = ''
         MAIL_LIST = "frovirat.ficosa@gmail.com"
     }
     stages {
         stage('Info') {
             steps {
                 echo 'Starting'
+                def scmVars = checkout scm
+                LOCAL_BRANCH_NAME = scmVars.GIT_BRANCH
+                CURRENT_GIT_COMMIT = scmVars.GIT_COMMIT
+                echo "Branch Name : " + LOCAL_BRANCH_NAME
+                echo "Commit SHA  : " + CURRENT_GIT_COMMIT
+                CURRENT_CONTAINER_NAME = "testing-flask-$GROUP_NAME-$CURRENT_GIT_COMMIT"
+                CURRENT_IMAGE_NAME = "flask-testing-image-$GROUP_NAME"
+                echo "Current Container Name : " + CURRENT_CONTAINER_NAME
+                echo "Current Imge Name : " + CURRENT_IMAGE_NAME
             }
         }
         stage('Linter') {
@@ -64,7 +76,7 @@ pipeline {
             // agent { dockerfile true }
             steps {
                 echo 'Building...'
-                sh "docker build -t flask-testing-image-$GROUP_NAME ."
+                sh "docker build -t $CURRENT_IMAGE_NAME ."
                 echo 'Notify github.'
             }
         }
@@ -72,8 +84,8 @@ pipeline {
             // agent { dockerfile true }
             steps {
                 echo 'Deploying...'
-                sh "docker ps -f name=testing-flask-$GROUP_NAME -q | xargs --no-run-if-empty docker container stop"
-                sh "docker run -d -p $GROUP_PORT:5000 --name testing-flask-$GROUP_NAME flask-testing-image-$GROUP_NAME"
+                sh "docker ps -f name=$CURRENT_CONTAINER_NAME -q | xargs --no-run-if-empty docker container stop"
+                sh "docker run -d -p $GROUP_PORT:5000 --name $CURRENT_CONTAINER_NAME $CURRENT_IMAGE_NAME"
             }
         }
         stage('Health-check') {
