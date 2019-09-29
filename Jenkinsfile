@@ -72,7 +72,8 @@ pipeline {
             // agent { dockerfile true }
             steps {
                 echo 'Deploying...'
-                sh "docker run --rm -d -p $GROUP_PORT:5000 --name testing-flask-$GROUP_NAME flask-testing-image-$GROUP_NAME"
+                sh "docker ps -f name=testing-flask-$GROUP_NAME -q | xargs --no-run-if-empty docker container stop"
+                sh "docker run -d -p $GROUP_PORT:5000 --name testing-flask-$GROUP_NAME flask-testing-image-$GROUP_NAME"
             }
         }
         stage('Health-check') {
@@ -83,6 +84,7 @@ pipeline {
         stage('RollBack') {
             steps {
                 echo 'wake up the old image if health-check fails'
+                //sh "docker container ls -a -fname=testing-flask-$GROUP_NAME -q | xargs -r docker container rm"
             }
         }
         stage('fail'){
@@ -93,13 +95,7 @@ pipeline {
     }
     post {
         always {
-            setBuildStatus("Build succeeded", "FAIL");
-        }
-        success {
-            setBuildStatus("Build succeeded", "SUCCESS");
-        }
-        failure {
-            setBuildStatus("Build failed", "FAILURE");
+            setBuildStatus("Build results is ${currentBuild.result}", currentBuild.result);
         }
     }
 }
