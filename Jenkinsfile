@@ -12,6 +12,7 @@ pipeline {
     agent any
     environment {
         GROUP_NAME = 'group1'
+        GROUP_PORT = '5001'
         PROJECT_NAME = 'flask-testing'
         PACKAGE_NAME = 'apis'
         LOCAL_BRANCH_NAME = ''
@@ -71,7 +72,7 @@ pipeline {
             // agent { dockerfile true }
             steps {
                 echo 'Deploying...'
-                sh "docker run --rm -d -p 5000:5000 --name testing-flask-$GROUP_NAME flask-testing-image-$GROUP_NAME"
+                sh "docker run --rm -d -p $GROUP_PORT:5000 --name testing-flask-$GROUP_NAME flask-testing-image-$GROUP_NAME"
             }
         }
         stage('Health-check') {
