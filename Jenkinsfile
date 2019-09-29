@@ -75,9 +75,10 @@ pipeline {
     }
     post {
         always {
-            githubNotify account: 'raul-arabaolaza', context: 'Final Test',
+            githubNotify account: 'LopezMDidac', context: 'Final Test',
                 credentialsId: '5687d767-8f7e-4647-ad85-f4b842057364', 
-                description: 'Notifying to GitHub', 
+                description: 'Notifying to GitHub',
+                sha: checkout(scm).GIT_COMMIT,
                 status: 'SUCCESS', targetUrl: 'git@github.com:LopezMDidac/flask-testing.git'
         }
     }
