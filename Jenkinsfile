@@ -11,6 +11,7 @@ void setBuildStatus(String message, String state) {
 pipeline {
     agent any
     environment {
+        GROUP_NAME = 'group1'
         PROJECT_NAME = 'flask-testing'
         PACKAGE_NAME = 'apis'
         LOCAL_BRANCH_NAME = ''
@@ -29,7 +30,7 @@ pipeline {
                 }
             }
             steps {
-                echo 'Linting..'
+                echo 'Linting...'
                 sh "pylint -f parseable $PACKAGE_NAME | tee pylint.out"
                 step([$class: 'WarningsPublisher',
                     parserConfigurations: [
@@ -52,14 +53,17 @@ pipeline {
                 }
             }
             steps {
-                echo 'Testing..'
+                echo 'Testing...'
+                 sh """
+                    py.test --cov -v --junitxml=unittests.xml --cov-config=.coveragerc --cov-report=xml:coverage.xml
+                    """
             }
         }
         stage('Build') {
             // agent { dockerfile true }
             steps {
-                echo 'Building..'
-                // sh "docker build -t flask-testing-image ."
+                echo 'Building...'
+                sh "docker build -t flask-testing-image-$GROUP_NAME"
                 echo 'Notify github.'
             }
         }
@@ -67,7 +71,7 @@ pipeline {
             // agent { dockerfile true }
             steps {
                 echo 'Deploying..'
-                // sh "docker run -d -p 5000:5000 --name testing-flask flask-testing-image"
+                sh "docker run --rm -d -p 5000:5000 --name testing-flask flask-testing-image-$GROUP_NAME"
             }
         }
         stage('Health-check') {
