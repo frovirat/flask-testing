@@ -87,6 +87,9 @@ pipeline {
         }
     }
     post {
+        always {
+            setBuildStatus("Build succeeded", "FAIL");
+        }
         success {
             setBuildStatus("Build succeeded", "SUCCESS");
         }
