@@ -37,13 +37,6 @@ pipeline {
                 ])
             }
         }
-        stage('Pylint Static Analysis') {
-
-            recordIssues(
-                tool: pyLint(pattern: '**/pylint.out'),
-                unstableTotalAll: '100',
-            )
-        }
         stage('Test') {
             steps {
                 echo 'Testing..'
@@ -83,9 +76,9 @@ pipeline {
     post {
         always {
             githubNotify account: 'raul-arabaolaza', context: 'Final Test',
-                credentialsId: 'raul-github', description: 'This is an example', 
-                epo: 'acceptance-test-harness', sha: '0b5936eb903d439ac0c0bf84940d73128d5e9487',
-                status: 'SUCCESS', targetUrl: 'https://my-jenkins-instance.com'
+                credentialsId: '5687d767-8f7e-4647-ad85-f4b842057364', 
+                description: 'Notifying to GitHub', 
+                status: 'SUCCESS', targetUrl: 'git@github.com:LopezMDidac/flask-testing.git'
         }
     }
 }
