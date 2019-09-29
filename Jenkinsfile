@@ -19,21 +19,30 @@ pipeline {
         CURRENT_GIT_COMMIT = ''
         CURRENT_CONTAINER_NAME = ''
         CURRENT_IMAGE_NAME = ''
+        PREVIOUS_IMAGE_NAME = ''
+        PREVIOUS_CONTAINER_NAME = ''
         MAIL_LIST = "frovirat.ficosa@gmail.com"
+    }
+    parameters {
+        choice(
+            choices: ['pass' , 'fail'],
+            description: '',
+            name: 'SELF_CHECK_STATUS')
     }
     stages {
         stage('Info') {
             steps {
                 echo 'Starting'
-                setBuildStatus("Build results is Building", 'Building');
                 script {
                     def scmVars = checkout scm
                     LOCAL_BRANCH_NAME = scmVars.GIT_BRANCH
                     CURRENT_GIT_COMMIT = scmVars.GIT_COMMIT
                     echo "Branch Name : " + LOCAL_BRANCH_NAME
                     echo "Commit SHA  : " + CURRENT_GIT_COMMIT
-                    CURRENT_CONTAINER_NAME = "testing-flask-$GROUP_NAME-$CURRENT_GIT_COMMIT"
-                    CURRENT_IMAGE_NAME = "flask-testing-image-$GROUP_NAME-$CURRENT_GIT_COMMIT"
+                    TEMPLATE_CONTAINER_NAME = "testing-flask-$GROUP_NAME"
+                    CURRENT_CONTAINER_NAME = "$TEMPLATE_CONTAINER_NAME-$CURRENT_GIT_COMMIT"
+                    TEMPLATE_IMAGE_NAME = "flask-testing-image-$GROUP_NAME"
+                    CURRENT_IMAGE_NAME = "$TEMPLATE_IMAGE_NAME-$CURRENT_GIT_COMMIT"
                     echo "Current Container Name : " + CURRENT_CONTAINER_NAME
                     echo "Current Imge Name : " + CURRENT_IMAGE_NAME
                 }
@@ -87,6 +96,8 @@ pipeline {
             // agent { dockerfile true }
             steps {
                 echo 'Deploying...'
+                sh "PREVIOUS_IMAGE_NAME=$(docker ps --format {{.Image}} -f name=$TEMPLATE_IMAGE_NAME*)"
+                sh "PREVIOUS_CONTAINER_NAME=$(docker ps --format {{.Names}} -f name=$TEMPLATE_IMAGE_NAME*)"
                 sh "docker ps -f name=$CURRENT_CONTAINER_NAME -q | xargs --no-run-if-empty docker container stop"
                 sh "docker run -d -p $GROUP_PORT:5000 --name $CURRENT_CONTAINER_NAME $CURRENT_IMAGE_NAME"
             }
@@ -94,13 +105,25 @@ pipeline {
         stage('Health-check') {
             steps {
                 echo 'Ensure that the api is up and giving service'
-
+                params.SELF_CHECK_STATUS = 'pass'
             }
         }
         stage('RollBack') {
+            when {
+                expression { params.SELF_CHECK_STATUS == 'pass' }
+            }
+            steps {
+                echo 'wake up the new image if health-check pass'
+                sh "docker container rm -name=$PREVIOUS_CONTAINER_NAME"
+            }
+
+            when {
+                expression { params.SELF_CHECK_STATUS == 'fail' }
+            }
             steps {
                 echo 'wake up the old image if health-check fails'
-                //sh "docker container ls -a -fname=testing-flask-$GROUP_NAME -q | xargs -r docker container rm"
+                sh "docker image rm -name=$CURRENT_IMAGE_NAME"
+                sh "docker run -d -p $GROUP_PORT:5000 --name $PREVIOUS_CONTAINER_NAME $PREVIOUS_IMAGE_NAME"
             }
         }
         stage('fail'){
