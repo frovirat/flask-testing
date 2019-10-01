@@ -85,12 +85,18 @@ pipeline {
             }
         }
         stage('Build') {
+            when {
+                expression { LOCAL_BRANCH_NAME == 'origin/master' }
+            }
             steps {
                 echo 'Building...'
                 sh "docker build -t $CURRENT_IMAGE_NAME ."
             }
         }
         stage('Deploy') {
+            when {
+                expression { LOCAL_BRANCH_NAME == 'origin/master' }
+            }
             steps {
                 echo 'Deploying...'
                 sh "docker ps -f name=$CONTAINER_NAME -q | xargs --no-run-if-empty docker container -f rm"
