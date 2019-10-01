@@ -11,8 +11,8 @@ void setBuildStatus(String message, String state) {
 pipeline {
     agent any
     environment {
-        GROUP_NAME = 'group0'
-        GROUP_PORT = '5000'
+        GROUP_NAME = 'group1'
+        GROUP_PORT = '5001'
         PROJECT_NAME = 'flask-testing'
         PACKAGE_NAME = 'apis'
         LOCAL_BRANCH_NAME = ''
