@@ -29,7 +29,7 @@ pipeline {
                             [   
                                 $class: "AnyBuildResult", 
                                 message: "Build running...", 
-                                state: 'pending'
+                                state: 'In progress'
                             ]
                         ] 
                     ]
