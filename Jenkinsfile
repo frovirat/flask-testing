@@ -114,7 +114,7 @@ pipeline {
         //     }
         // }
     }
-    // post {
+    post {
     //     failure{
                 //create container with old image
                 //delete current image
@@ -122,8 +122,8 @@ pipeline {
     //      pass{
                 //delete old images
     //      }
-    //     always {
-    //         setBuildStatus("Build results is ${currentBuild.result}", currentBuild.result);
-    //     }
-    // }
+        always {
+             setBuildStatus("Build results is ${currentBuild.result}", currentBuild.result);
+        }
+    }
 }
