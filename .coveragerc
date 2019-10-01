@@ -1,0 +1,10 @@
+# .coveragerc to control coverage.py
+[run]
+branch = True
+source = apis
+omit =
+    *test.py
+    *models.py
+    *__init__.py
+    *schemas.py
+    *resources.py

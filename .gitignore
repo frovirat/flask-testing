@@ -1,4 +1,8 @@
 .vscode
+unittests.xml
+pylint.out
+Jenkinsfile0
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

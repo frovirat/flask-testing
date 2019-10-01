@@ -1,3 +1,6 @@
+"""
+Api generationan including all the namespaces
+"""
 from flask_restplus import Api
 
 from apis.text_processing import api as text_processing_api
