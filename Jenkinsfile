@@ -16,6 +16,24 @@ pipeline {
         stage('Info') {
             steps {
                 echo 'Starting'
+                step([
+                    $class: "GitHubCommitStatusSetter",
+                    contextSource: [
+                        $class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build-status"
+                    ],
+                    errorHandlers: [
+                        [$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]
+                    ],
+                    statusResultSource: [ $class: "ConditionalStatusResultSource", 
+                        results: [
+                            [   
+                                $class: "AnyBuildResult", 
+                                message: "Build running... ${currentBuild.result}", 
+                                state: currentBuild.result
+                            ]
+                        ] 
+                    ]
+                ]);
                 script {
                     def scmVars = checkout scm
                     LOCAL_BRANCH_NAME = scmVars.GIT_BRANCH
