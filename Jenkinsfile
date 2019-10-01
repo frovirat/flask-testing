@@ -28,8 +28,8 @@ pipeline {
                         results: [
                             [   
                                 $class: "AnyBuildResult", 
-                                message: "Build running... ${currentBuild.result}", 
-                                state: currentBuild.result
+                                message: "Build running...", 
+                                state: 'pending'
                             ]
                         ] 
                     ]
