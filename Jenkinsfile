@@ -1,3 +1,18 @@
+void setBuildStatus(String message, String state) {
+    step([
+        $class: "GitHubCommitStatusSetter",
+        contextSource: [
+            $class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build-status"
+        ],
+        errorHandlers: [
+            [$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]
+        ],
+        statusResultSource: [ $class: "ConditionalStatusResultSource", 
+            results: [[[[$class: "AnyBuildResult", message: message, state: state]]]]
+        ] 
+    ]);
+}
+
 pipeline {
     agent any
     environment {
@@ -16,24 +31,7 @@ pipeline {
         stage('Info') {
             steps {
                 echo 'Starting'
-                step([
-                    $class: "GitHubCommitStatusSetter",
-                    contextSource: [
-                        $class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build-status"
-                    ],
-                    errorHandlers: [
-                        [$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]
-                    ],
-                    statusResultSource: [ $class: "ConditionalStatusResultSource", 
-                        results: [
-                            [   
-                                $class: "AnyBuildResult", 
-                                message: "Build running...", 
-                                state: 'PENDING'
-                            ]
-                        ] 
-                    ]
-                ]);
+                setBuildStatus("Build running...", 'PENDING');
                 script {
                     def scmVars = checkout scm
                     LOCAL_BRANCH_NAME = scmVars.GIT_BRANCH
@@ -137,24 +135,7 @@ pipeline {
                 //delete old images
     //      }
         always {
-            step([
-                $class: "GitHubCommitStatusSetter",
-                contextSource: [
-                    $class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build-status"
-                ],
-                errorHandlers: [
-                    [$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]
-                ],
-                statusResultSource: [ $class: "ConditionalStatusResultSource", 
-                    results: [
-                        [   
-                            $class: "AnyBuildResult", 
-                            message: "Build results is ${currentBuild.result}", 
-                            state: currentBuild.result
-                        ]
-                    ] 
-                ]
-            ]);
+            setBuildStatus("Build results is ${currentBuild.result}", currentBuild.result);
         }
     }
 }
