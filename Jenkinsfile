@@ -45,7 +45,7 @@ pipeline {
                     TEMPLATE_IMAGE_NAME = "testing-flask-image-$GROUP_NAME"
                     CURRENT_IMAGE_NAME = "$TEMPLATE_IMAGE_NAME-$CURRENT_GIT_COMMIT"
                     PREVIOUS_IMAGE_NAME = sh (
-                        script: "docker ps -f name=$CONTAINER_NAME -q | xargs --no-run-if-empty docker inspect --format='{{.Config.Image}}' $CONTAINER_NAME",
+                        script: "docker ps -f name=$CONTAINER_NAME -q | xargs --no-run-if-empty docker inspect --format='{{.Config.Id}}' $CONTAINER_NAME",
                         returnStdout: true
                     ).trim()
                     echo "Container Name : " + CONTAINER_NAME
@@ -138,7 +138,7 @@ pipeline {
                 sh "docker image rmi $CURRENT_IMAGE_NAME"
         }
         success {
-                sh "docker rmi ${(docker image --format '{{.Repository}}:{{.Tag}}' | grep $PREVIOUS_IMAGE_NAME)}"
+                sh "docker image rmi $PREVIOUS_IMAGE_NAME"
         }
         always {
             setBuildStatus("Build results is ${currentBuild.result}", currentBuild.result);
