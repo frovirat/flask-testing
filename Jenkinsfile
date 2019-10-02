@@ -54,53 +54,57 @@ pipeline {
                 }
             }
         }
-        stage('Linter') {
-            agent {
-                docker {
-                    image 'pylint:latest'
+        stage('Run CI') {
+            parallel {
+                stage('Linter') {
+                    agent {
+                        docker {
+                            image 'pylint:latest'
+                        }
+                    }
+                    steps {
+                        echo 'Linting...'
+                        sh "pip install -r requirements.txt"
+                        sh "pylint -f parseable --rcfile=.pylintrc $PACKAGE_NAME | tee pylint.out"
+                        recordIssues(
+                            enabledForFailure: true,
+                            ignoreFailedBuilds: false,
+                            tools: [ pyLint(pattern: 'pylint.out') ],
+                            qualityGates: [
+                                [threshold: 16, type: 'TOTAL_LOW', unstable: true],
+                                [threshold: 11, type: 'TOTAL_NORMAL', unstable: true],
+                                [threshold: 1, type: 'TOTAL_HIGH', unstable: true],
+                                [threshold: 1, type: 'TOTAL_ERROR', unstable: true]
+                            ]
+                        )
+                    }
                 }
-            }
-            steps {
-                echo 'Linting...'
-                sh "pip install -r requirements.txt"
-                sh "pylint -f parseable --rcfile=.pylintrc $PACKAGE_NAME | tee pylint.out"
-                recordIssues(
-                    enabledForFailure: true,
-                    ignoreFailedBuilds: false,
-                    tools: [ pyLint(pattern: 'pylint.out') ],
-                    qualityGates: [
-                        [threshold: 16, type: 'TOTAL_LOW', unstable: true],
-                        [threshold: 11, type: 'TOTAL_NORMAL', unstable: true],
-                        [threshold: 1, type: 'TOTAL_HIGH', unstable: true],
-                        [threshold: 1, type: 'TOTAL_ERROR', unstable: true]
-                    ]
-                )
-            }
-        }
-        stage('Test') {
-            agent {
-                docker {
-                    image 'pytest-cov:latest'
+                stage('Test') {
+                    agent {
+                        docker {
+                            image 'pytest-cov:latest'
+                        }
+                    }
+                    steps {
+                        echo 'Testing...'
+                        sh "pip install -r requirements.txt"
+                        sh "py.test --cov -v --junitxml=unittests.xml --cov=$PACKAGE_NAME --cov-config=.coveragerc --cov-report=xml:coverage.xml"
+                        cobertura(
+                            autoUpdateHealth: false,
+                            autoUpdateStability: false,
+                            coberturaReportFile: '**/coverage.xml',
+                            conditionalCoverageTargets: '80, 0, 0',
+                            failUnhealthy: false,
+                            failUnstable: false,
+                            lineCoverageTargets: '80, 0, 0',
+                            maxNumberOfBuilds: 0,
+                            methodCoverageTargets: '80, 0, 0',
+                            onlyStable: false,
+                            sourceEncoding: 'ASCII',
+                            zoomCoverageChart: false
+                        )
+                    }
                 }
-            }
-            steps {
-                echo 'Testing...'
-                sh "pip install -r requirements.txt"
-                sh "py.test --cov -v --junitxml=unittests.xml --cov=$PACKAGE_NAME --cov-config=.coveragerc --cov-report=xml:coverage.xml"
-                cobertura(
-                    autoUpdateHealth: false,
-                    autoUpdateStability: false,
-                    coberturaReportFile: '**/coverage.xml',
-                    conditionalCoverageTargets: '80, 0, 0',
-                    failUnhealthy: false,
-                    failUnstable: false,
-                    lineCoverageTargets: '80, 0, 0',
-                    maxNumberOfBuilds: 0,
-                    methodCoverageTargets: '80, 0, 0',
-                    onlyStable: false,
-                    sourceEncoding: 'ASCII',
-                    zoomCoverageChart: false
-                )
             }
         }
         stage('Build') {
@@ -139,14 +143,14 @@ pipeline {
     post {
         failure {
             script {
-                if (${env.LOCAL_BRANCH_NAME} == 'origin/master')
+                if (LOCAL_BRANCH_NAME == 'origin/master')
                     sh "docker image rmi $CURRENT_IMAGE_NAME"
             }
                 
         }
         success {
             script {
-                if (${env.LOCAL_BRANCH_NAME} == 'origin/master')
+                if (LOCAL_BRANCH_NAME == 'origin/master')
                     sh "docker image rmi $PREVIOUS_IMAGE_NAME"
             }
         }
