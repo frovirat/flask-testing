@@ -143,14 +143,14 @@ pipeline {
     post {
         failure {
             script {
-                if (LOCAL_BRANCH_NAME == 'origin/master') AND (CURRENT_IMAGE_NAME.trim())
+                if (LOCAL_BRANCH_NAME == 'origin/master' && CURRENT_IMAGE_NAME != '')
                     sh "docker image rmi $CURRENT_IMAGE_NAME"
             }
                 
         }
         success {
             script {
-                if (LOCAL_BRANCH_NAME == 'origin/master') AND (PREVIOUS_IMAGE_NAME.trim())
+                if (LOCAL_BRANCH_NAME == 'origin/master' && PREVIOUS_IMAGE_NAME != '')
                     sh "docker image rmi $PREVIOUS_IMAGE_NAME"
             }
         }
