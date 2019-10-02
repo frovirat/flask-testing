@@ -138,7 +138,7 @@ pipeline {
                 sh "docker image rmi $CURRENT_IMAGE_NAME"
         }
         success {
-                sh "docker rmi ${(docker images --format '{{.Repository}}:{{.Tag}}' | grep $PREVIOUS_IMAGE_NAME)}"
+                sh "docker rmi ${(docker image --format '{{.Repository}}:{{.Tag}}' | grep $PREVIOUS_IMAGE_NAME)}"
         }
         always {
             setBuildStatus("Build results is ${currentBuild.result}", currentBuild.result);
