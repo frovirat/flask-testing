@@ -123,6 +123,9 @@ pipeline {
             }
         }
         stage('Health-check') {
+            when {
+                expression { LOCAL_BRANCH_NAME == 'origin/master' }
+            }
             steps {
                 sleep 5
                 httpRequest(
