@@ -138,10 +138,17 @@ pipeline {
     }
     post {
         failure {
-                sh "docker image rmi $CURRENT_IMAGE_NAME"
+            script {
+                if (${env.LOCAL_BRANCH_NAME} == 'origin/master')
+                    sh "docker image rmi $CURRENT_IMAGE_NAME"
+            }
+                
         }
         success {
-                sh "docker image rmi $PREVIOUS_IMAGE_NAME"
+            script {
+                if (${env.LOCAL_BRANCH_NAME} == 'origin/master')
+                    sh "docker image rmi $PREVIOUS_IMAGE_NAME"
+            }
         }
         always {
             setBuildStatus("Build results is ${currentBuild.result}", currentBuild.result);
