@@ -7,7 +7,7 @@ void setBuildStatus(String message, String state) {
         errorHandlers: [
             [$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]
         ],
-        statusResultSource: [ $class: "ConditionalStatusResultSource", 
+        statusResultSource: [ $class: "ConditionalStatusResultSource",
             results: [[$class: "AnyBuildResult", message: message, state: state]]
         ]
     ]);
@@ -17,8 +17,8 @@ pipeline {
     agent any
     environment {
         DEPLOY_URL = ''
-        GROUP_NAME = 'group1'
-        GROUP_PORT = '5001'
+        GROUP_NAME = 'group0'
+        GROUP_PORT = '5000'
         PROJECT_NAME = 'flask-testing'
         PACKAGE_NAME = 'apis'
         LOCAL_BRANCH_NAME = ''
@@ -45,7 +45,7 @@ pipeline {
                     TEMPLATE_IMAGE_NAME = "testing-flask-image-$GROUP_NAME"
                     CURRENT_IMAGE_NAME = "$TEMPLATE_IMAGE_NAME-$CURRENT_GIT_COMMIT"
                     PREVIOUS_IMAGE_NAME = sh (
-                        script: "docker ps -f name=$CONTAINER_NAME -q | xargs --no-run-if-empty docker inspect --format='{{.Config.Id}}' $CONTAINER_NAME",
+                        script: "docker ps -f name=$CONTAINER_NAME -q | xargs --no-run-if-empty docker inspect --format='{{.Config.Image}}' $CONTAINER_NAME",
                         returnStdout: true
                     ).trim()
                     echo "Container Name : " + CONTAINER_NAME
@@ -143,18 +143,24 @@ pipeline {
     post {
         failure {
             script {
-                if (LOCAL_BRANCH_NAME == 'origin/master')
-                    sh "docker image rmi $CURRENT_IMAGE_NAME"
+                sh "echo POST-ACTION failure"
+                if (LOCAL_BRANCH_NAME == 'origin/master' && CURRENT_IMAGE_NAME != '') {
+                    sh "docker ps -af name=$CONTAINER_NAME -q | xargs --no-run-if-empty docker container rm -f"
+                    sh "docker run -d -p $GROUP_PORT:5000 --name $CONTAINER_NAME $PREVIOUS_IMAGE_NAME | echo"
+                    sh "docker image rmi $CURRENT_IMAGE_NAME | echo"
+                }
             }
-                
         }
         success {
             script {
-                if (LOCAL_BRANCH_NAME == 'origin/master')
-                    sh "docker image rmi $PREVIOUS_IMAGE_NAME"
+                sh "echo POST-ACTION success"
+                if (LOCAL_BRANCH_NAME == 'origin/master' && PREVIOUS_IMAGE_NAME != '') {
+                    sh "docker rmi $PREVIOUS_IMAGE_NAME | echo"
+                }
             }
         }
         always {
+            sh "echo POST-ACTION always"
             setBuildStatus("Build results is ${currentBuild.result}", currentBuild.result);
         }
     }
