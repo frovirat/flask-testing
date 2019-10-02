@@ -16,6 +16,7 @@ void setBuildStatus(String message, String state) {
 pipeline {
     agent any
     environment {
+        DEPLOY_URL = ''
         GROUP_NAME = 'group1'
         GROUP_PORT = '5001'
         PROJECT_NAME = 'flask-testing'
@@ -36,6 +37,8 @@ pipeline {
                     def scmVars = checkout scm
                     LOCAL_BRANCH_NAME = scmVars.GIT_BRANCH
                     CURRENT_GIT_COMMIT = scmVars.GIT_COMMIT
+                    DEPLOY_URL = BUILD_URL.split('/')[2].split(':')[0]
+                    echo DEPLOY_URL
                     echo "Branch Name : " + LOCAL_BRANCH_NAME
                     echo "Commit SHA  : " + CURRENT_GIT_COMMIT
                     CONTAINER_NAME = "testing-flask-$GROUP_NAME"
@@ -115,25 +118,28 @@ pipeline {
             }
             steps {
                 echo 'Deploying...'
-                sh "docker ps -f name=$CONTAINER_NAME -q | xargs --no-run-if-empty docker container -f rm"
+                sh "docker ps -af name=$CONTAINER_NAME -q | xargs --no-run-if-empty docker container rm -f"
                 sh "docker run -d -p $GROUP_PORT:5000 --name $CONTAINER_NAME $CURRENT_IMAGE_NAME"
             }
         }
-        // stage('Health-check') {
-        //     steps {
-        //         //TODO make a health check
-        //         // curl check response 200
-        //     }
-        // }
+        stage('Health-check') {
+            steps {
+                sleep 5
+                httpRequest(
+                        url: "http://$DEPLOY_URL:$GROUP_PORT",
+                        validResponseCodes: "200",
+                        timeout:30
+                    )
+            }
+        }
     }
     post {
-    //     failure{
-                //create container with old image
-                //delete current image
-    //        }
-    //      pass{
-                //delete old images
-    //      }
+        failure {
+                sh "docker image rmi $CURRENT_IMAGE_NAME"
+        }
+        success {
+                sh "docker rmi ${(docker images --format '{{.Repository}}:{{.Tag}}' | grep $PREVIOUS_IMAGE_NAME)}"
+        }
         always {
             setBuildStatus("Build results is ${currentBuild.result}", currentBuild.result);
         }
